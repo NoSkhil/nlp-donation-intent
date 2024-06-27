@@ -36,9 +36,11 @@ function openInbox(cb:any) {
   imap.openBox('INBOX', true, cb);
 }
 
-app.listen(8000, async () => {
+const PORT = process.env.PORT || 8000;
 
-  console.log("12 server active on port 8000");
+app.listen(PORT, async () => {
+
+  console.log(`12 server active on port ${PORT}`);
   client.connect((err: any) => {
     if (err) console.log(err);
     else {
