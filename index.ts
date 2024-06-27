@@ -91,7 +91,8 @@ app.listen(8000, async () => {
                    const parsedData = await emailService.parseRawEmail(emailData);
                    console.log("PARSED EMAIL DATA: \n");
                    console.log(parsedData);
-                   //const insertData = await emailService.insertEmail(parsedData);
+                   const insertData = await emailService.insertEmail(parsedData);
+                   console.log("EMAIL DATA INSERTED IN DATABASE"); 
 
                   } catch (err) {
                     console.log('Parsing error: ', err);
