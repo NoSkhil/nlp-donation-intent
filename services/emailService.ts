@@ -27,11 +27,11 @@ const insertEmail = async (emailData: CreateEmailDTO) => {
             sendername, 
             senderemail, 
             emailsubject, 
-            `{${names.map(name => `"${name}"`).join(',')}}`, 
-            `{${dates.map(date => typeof date === 'string' ? `"${date}"` : `"${date.toISOString()}"`).join(',')}}`, 
-            `{${contactnumbers.join(',')}}`, 
-            `{${emails.map(email => `"${email}"`).join(',')}}`, 
-            `{${amounts.map(amount => `"${amount}"`).join(',')}}`, 
+            names ? `{${names.map(name => `"${name}"`).join(',')}}` : null, 
+            dates && dates[0] !==null ? `{${dates.map(date => typeof date === 'string' ? `"${date}"` : `"${date.toISOString()}"`).join(',')}}` : null, 
+            contactnumbers ? `{${contactnumbers.join(',')}}` : null, 
+            emails ? `{${emails.map(email => `"${email}"`).join(',')}}` : null, 
+            amounts ? `{${amounts.map(amount => `"${amount}"`).join(',')}}` : null, 
             summary
         ];
         return await client.query(queryString, values);
@@ -75,15 +75,15 @@ const parseRawEmail = async (emailData: RawEmailData): Promise<CreateEmailDTO> =
 
         // Construct the CreateEmailDTO
         const parsedEmail: CreateEmailDTO = {
-            sendername: emailData.sendername,
-            senderemail: emailData.senderemail,
+            sendername: emailData.senderName,
+            senderemail: emailData.senderEmail,
             emailsubject: emailData.subject,
-            names: uniqueNames,  // List of extracted names
-            dates, // List of extracted dates
-            contactnumbers, // List of extracted contact numbers
-            emails, // List of extracted emails
-            amounts, // List of extracted amounts
-            summary, // Full body text as summary
+            names: uniqueNames.length ? uniqueNames : undefined,  // List of extracted names
+            dates: dates.length ? dates : undefined, // List of extracted dates
+            contactnumbers: contactnumbers.length ? contactnumbers : undefined, // List of extracted contact numbers
+            emails: emails.length ? emails : undefined, // List of extracted emails
+            amounts: amounts.length ? amounts : undefined, // List of extracted amounts
+            summary // Full body text as summary
         };
 
         return parsedEmail;
@@ -110,11 +110,11 @@ const updateEmail = async (emailData: Email) => {
             sendername, 
             senderemail, 
             emailsubject, 
-            `{${names.map(name => `"${name}"`).join(',')}}`, 
-            `{${dates.map(date => `"${date.toISOString()}"`).join(',')}}`, 
-            `{${contactnumbers.join(',')}}`, 
-            `{${emails.map(email => `"${email}"`).join(',')}}`, 
-            `{${amounts.map(amount => `"${amount}"`).join(',')}}`, 
+            names ? `{${names.map(name => `"${name}"`).join(',')}}` : null, 
+            dates && dates[0] !==null ? `{${dates.map(date => typeof date === 'string' ? `"${date}"` : `"${date.toISOString()}"`).join(',')}}` : null, 
+            contactnumbers ? `{${contactnumbers.join(',')}}` : null, 
+            emails ? `{${emails.map(email => `"${email}"`).join(',')}}` : null, 
+            amounts ? `{${amounts.map(amount => `"${amount}"`).join(',')}}` : null, 
             summary, 
             id
         ];
@@ -144,3 +144,18 @@ export default {
     updateEmail,
     parseRawEmail
 };
+
+// Adjust the Email interface to handle optional fields
+
+interface Email {
+    id: string;
+    sendername: string;
+    senderemail: string;
+    emailsubject: string;
+    names?: string[];
+    dates?: Date[];
+    contactnumbers?: number[];
+    emails?: string[];
+    amounts?: string[];
+    summary?: string;
+}
