@@ -20,7 +20,6 @@ const getAllData = async () => {
 
 const insertEmail = async (emailData: CreateEmailDTO) => {
     try {
-        console.log(emailData);
         const { sendername, senderemail, emailsubject, names, dates, contactnumbers, emails, amounts, summary } = emailData;
         const queryString = "INSERT INTO Emails(sendername, senderemail, emailsubject, names, dates, contactnumbers, emails, amounts, summary) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *";
         const values = [
