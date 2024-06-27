@@ -22,7 +22,17 @@ const insertEmail = async (emailData: CreateEmailDTO) => {
     try {
         const { senderName, senderEmail, emailSubject, names, dates, contactNumbers, emails, amounts, summary } = emailData;
         const queryString = "INSERT INTO Emails(senderName, senderEmail, emailSubject, names, dates, contactNumbers, emails, amounts, summary) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *";
-        const values = [senderName, senderEmail, emailSubject, JSON.stringify(names), JSON.stringify(dates), JSON.stringify(contactNumbers), JSON.stringify(emails), JSON.stringify(amounts), summary];
+        const values = [
+            senderName, 
+            senderEmail, 
+            emailSubject, 
+            `{${names.map(name => `"${name}"`).join(',')}}`, 
+            `{${dates.map(date => `"${date.toISOString()}"`).join(',')}}`, 
+            `{${contactNumbers.join(',')}}`, 
+            `{${emails.map(email => `"${email}"`).join(',')}}`, 
+            `{${amounts.map(amount => `"${amount}"`).join(',')}}`, 
+            summary
+        ];
         return await client.query(queryString, values);
     } catch (err) {
         console.log(err);
@@ -81,7 +91,7 @@ const parseRawEmail = async (emailData: RawEmailData): Promise<CreateEmailDTO> =
 
 const insertTables = async () => {
     try {
-        return await client.query("CREATE TABLE Emails (id varchar(255), senderName varchar(255), senderEmail varchar(255), emailSubject varchar(255), names text, dates text, contactNumbers text, emails text, amounts text, summary text)");
+        return await client.query("CREATE TABLE Emails (id varchar(255), senderName varchar(255), senderEmail varchar(255), emailSubject varchar(255), names text[], dates text[], contactNumbers text[], emails text[], amounts text[], summary text)");
     } catch (err) {
         console.log(err);
         return { err: "Request failed!" };
@@ -92,7 +102,18 @@ const updateEmail = async (emailData: Email) => {
     try {
         const { id, senderName, senderEmail, emailSubject, names, dates, contactNumbers, emails, amounts, summary } = emailData;
         const queryString = "UPDATE Emails SET senderName=$1, senderEmail=$2, emailSubject=$3, names=$4, dates=$5, contactNumbers=$6, emails=$7, amounts=$8, summary=$9 WHERE id=$10 RETURNING *";
-        const values = [senderName, senderEmail, emailSubject, JSON.stringify(names), JSON.stringify(dates), JSON.stringify(contactNumbers), JSON.stringify(emails), JSON.stringify(amounts), summary, id];
+        const values = [
+            senderName, 
+            senderEmail, 
+            emailSubject, 
+            `{${names.map(name => `"${name}"`).join(',')}}`, 
+            `{${dates.map(date => `"${date.toISOString()}"`).join(',')}}`, 
+            `{${contactNumbers.join(',')}}`, 
+            `{${emails.map(email => `"${email}"`).join(',')}}`, 
+            `{${amounts.map(amount => `"${amount}"`).join(',')}}`, 
+            summary, 
+            id
+        ];
         return await client.query(queryString, values);
     } catch (err) {
         console.log(err);
