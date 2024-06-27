@@ -13,6 +13,9 @@
   "dependencies": {
     "@types/mailparser": "^3.4.4",
     "@types/pg": "^8.11.6",
+    "compromise": "^14.13.0",
+    "compromise-dates": "^3.5.0",
+    "compromise-numbers": "^1.4.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",

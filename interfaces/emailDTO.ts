@@ -1,13 +1,24 @@
 interface Email {
     id:string,
-    name:string, 
-    birthdate:Date,
-    phone:number,
-    email:string,
-    amount:number,
+    senderName:string, 
+    senderEmail: string,
+    emailSubject: string,
+    names: string[],
+    dates:Date[],
+    contactNumbers:number[],
+    emails:string[],
+    amounts:string[],
     summary: string
 }
 
 interface CreateEmailDTO extends Omit<Email, 'id'> {}
 
-export {Email, CreateEmailDTO};
+interface RawEmailData {
+    fromEmail: string,
+    senderName: string,
+    senderEmail: string,
+    bodyText: string,
+    subject: string,
+}
+
+export {Email, CreateEmailDTO, RawEmailData};

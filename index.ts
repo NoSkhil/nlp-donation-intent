@@ -7,6 +7,7 @@ import client from './db';
 import emailRoutes from './routes/emailRoutes';
 import Imap from 'imap';
 import { simpleParser } from 'mailparser';
+import emailService from "./services/emailService";
 import util from 'util';
 const inspect = util.inspect;
 
@@ -75,13 +76,22 @@ app.listen(8000, async () => {
 
                   try {
                     let parsed = await simpleParser(buffer);
-                    emailData.fromEmail = parsed.from?.text || '';
                     emailData.senderName = parsed.from?.value[0]?.name || '';
                     emailData.senderEmail = parsed.from?.value[0]?.address || '';
                     emailData.bodyText = parsed.text || '';
+                    emailData.subject = parsed.subject || ''; 
+
+                    // Extract username from email address
+                    if (emailData.senderEmail) {
+                      emailData.fromEmail = emailData.senderEmail.split('@')[0];
+                    }
 
                     console.log('Email Data:', emailData);
-                    // Here you can store emailData object in your database or use it as needed
+                    //NLP ANALYSIS TO EXTRACT RELEVANT DATA FROM THE EMAIL
+                   const parsedData = await emailService.parseRawEmail(emailData);
+                   console.log("PARSED EMAIL DATA: \n");
+                   console.log(parsedData);
+                   //const insertData = await emailService.insertEmail(parsedData);
 
                   } catch (err) {
                     console.log('Parsing error: ', err);
