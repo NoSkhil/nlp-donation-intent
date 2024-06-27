@@ -19,7 +19,7 @@ app.use('/api/email', emailRoutes);
 
 var imap = new Imap({
     user: 'akhilnekkanti98@gmail.com',
-    password: "rfisuzobughmukka",
+    password: process.env.GMAIL_PASSWORD,
     host: 'imap.gmail.com',
     port: 993,
     tls: true,
