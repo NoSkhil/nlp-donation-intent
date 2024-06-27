@@ -8,7 +8,7 @@ import numbersPlugin from 'compromise-numbers';
 nlp.plugin(datePlugin);
 nlp.plugin(numbersPlugin);
 
-const getAllData = async (email: string) => {
+const getAllData = async () => {
     try {
         return await client.query("SELECT * FROM Emails");
     }
@@ -20,15 +20,16 @@ const getAllData = async (email: string) => {
 
 const insertEmail = async (emailData: CreateEmailDTO) => {
     try {
-        const { senderName, senderEmail, emailSubject, names, dates, contactNumbers, emails, amounts, summary } = emailData;
-        const queryString = "INSERT INTO Emails(senderName, senderEmail, emailSubject, names, dates, contactNumbers, emails, amounts, summary) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *";
+        console.log(emailData);
+        const { sendername, senderemail, emailsubject, names, dates, contactnumbers, emails, amounts, summary } = emailData;
+        const queryString = "INSERT INTO Emails(sendername, senderemail, emailsubject, names, dates, contactnumbers, emails, amounts, summary) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *";
         const values = [
-            senderName, 
-            senderEmail, 
-            emailSubject, 
+            sendername, 
+            senderemail, 
+            emailsubject, 
             `{${names.map(name => `"${name}"`).join(',')}}`, 
-            `{${dates.map(date => `"${date.toISOString()}"`).join(',')}}`, 
-            `{${contactNumbers.join(',')}}`, 
+            `{${dates.map(date => typeof date === 'string' ? `"${date}"` : `"${date.toISOString()}"`).join(',')}}`, 
+            `{${contactnumbers.join(',')}}`, 
             `{${emails.map(email => `"${email}"`).join(',')}}`, 
             `{${amounts.map(amount => `"${amount}"`).join(',')}}`, 
             summary
@@ -42,7 +43,7 @@ const insertEmail = async (emailData: CreateEmailDTO) => {
 
 const parseRawEmail = async (emailData: RawEmailData): Promise<CreateEmailDTO> => {
     try {
-        const { fromEmail, senderName, senderEmail, bodyText } = emailData;
+        const { fromEmail, sendername, senderemail, bodyText } = emailData;
 
         // Use compromise to parse the text
         const doc = nlp(bodyText);
@@ -50,11 +51,14 @@ const parseRawEmail = async (emailData: RawEmailData): Promise<CreateEmailDTO> =
         // Extract names
         const names = doc.people().out('array');
 
+        // Remove special characters
+        const namesFormatted = doc.people().out('array').map(name => name.replace(/[,-]/g, '').trim());
+
         // Remove duplicate names
-        const uniqueNames = [...new Set(names)];
+        const uniqueNames = [...new Set(namesFormatted)];
 
         // Extract contact numbers
-        const contactNumbers = doc.phoneNumbers().json().map(phone => parseInt(phone.text.replace(/\D/g, ''), 10));
+        const contactnumbers = doc.phoneNumbers().json().map(phone => parseInt(phone.text.replace(/\D/g, ''), 10));
 
         // Extract dates
         const dates = doc.dates().json().map(date => new Date(date.date));
@@ -71,12 +75,12 @@ const parseRawEmail = async (emailData: RawEmailData): Promise<CreateEmailDTO> =
 
         // Construct the CreateEmailDTO
         const parsedEmail: CreateEmailDTO = {
-            senderName: emailData.senderName,
-            senderEmail: emailData.senderEmail,
-            emailSubject: emailData.subject,
+            sendername: emailData.sendername,
+            senderemail: emailData.senderemail,
+            emailsubject: emailData.subject,
             names: uniqueNames,  // List of extracted names
             dates, // List of extracted dates
-            contactNumbers, // List of extracted contact numbers
+            contactnumbers, // List of extracted contact numbers
             emails, // List of extracted emails
             amounts, // List of extracted amounts
             summary, // Full body text as summary
@@ -91,7 +95,7 @@ const parseRawEmail = async (emailData: RawEmailData): Promise<CreateEmailDTO> =
 
 const insertTables = async () => {
     try {
-        return await client.query("CREATE TABLE Emails (id varchar(255), senderName varchar(255), senderEmail varchar(255), emailSubject varchar(255), names text[], dates text[], contactNumbers text[], emails text[], amounts text[], summary text)");
+        return await client.query("CREATE TABLE Emails (id varchar(255), sendername varchar(255), senderemail varchar(255), emailsubject varchar(255), names text[], dates text[], contactnumbers text[], emails text[], amounts text[], summary text)");
     } catch (err) {
         console.log(err);
         return { err: "Request failed!" };
@@ -100,15 +104,15 @@ const insertTables = async () => {
 
 const updateEmail = async (emailData: Email) => {
     try {
-        const { id, senderName, senderEmail, emailSubject, names, dates, contactNumbers, emails, amounts, summary } = emailData;
-        const queryString = "UPDATE Emails SET senderName=$1, senderEmail=$2, emailSubject=$3, names=$4, dates=$5, contactNumbers=$6, emails=$7, amounts=$8, summary=$9 WHERE id=$10 RETURNING *";
+        const { id, sendername, senderemail, emailsubject, names, dates, contactnumbers, emails, amounts, summary } = emailData;
+        const queryString = "UPDATE Emails SET sendername=$1, senderemail=$2, emailsubject=$3, names=$4, dates=$5, contactnumbers=$6, emails=$7, amounts=$8, summary=$9 WHERE id=$10 RETURNING *";
         const values = [
-            senderName, 
-            senderEmail, 
-            emailSubject, 
+            sendername, 
+            senderemail, 
+            emailsubject, 
             `{${names.map(name => `"${name}"`).join(',')}}`, 
             `{${dates.map(date => `"${date.toISOString()}"`).join(',')}}`, 
-            `{${contactNumbers.join(',')}}`, 
+            `{${contactnumbers.join(',')}}`, 
             `{${emails.map(email => `"${email}"`).join(',')}}`, 
             `{${amounts.map(amount => `"${amount}"`).join(',')}}`, 
             summary, 
@@ -121,9 +125,11 @@ const updateEmail = async (emailData: Email) => {
     }
 };
 
-const deleteEmail = async (email: string) => {
+const deleteEmail = async (id: string) => {
     try {
-        return await client.query("DELETE FROM Emails WHERE email=$1", [email]);
+        console.log(id);
+        const deleted = await client.query("DELETE FROM Emails WHERE id=$1", [id]);
+        return deleted;
     } catch (err) {
         console.log(err);
         return { err: "Request failed!" };

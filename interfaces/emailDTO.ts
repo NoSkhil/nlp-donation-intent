@@ -1,14 +1,14 @@
 interface Email {
     id:string,
-    senderName:string, 
-    senderEmail: string,
-    emailSubject: string,
-    names: string[],
-    dates:Date[],
-    contactNumbers:number[],
-    emails:string[],
-    amounts:string[],
-    summary: string
+    sendername:string, 
+    senderemail: string,
+    emailsubject: string,
+    names?: string[],
+    dates?:Date[],
+    contactnumbers?:number[],
+    emails?:string[],
+    amounts?:string[],
+    summary?: string
 }
 
 interface CreateEmailDTO extends Omit<Email, 'id'> {}

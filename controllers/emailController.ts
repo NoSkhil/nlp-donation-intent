@@ -5,8 +5,7 @@ import { Email, CreateEmailDTO } from "../interfaces/emailDTO";
 
 const getAllEmails = async (req:Request,res:Response,next:NextFunction) => {
     try{
-        const {email} = req.body;
-        const emailData = await emailService.getAllData(email);
+        const emailData = await emailService.getAllData();
         res.status(200).send({data:emailData});
     } catch (err) {
         res.status(500).send(err);
@@ -44,8 +43,8 @@ const createEmailTable = async (req:Request,res:Response,next:NextFunction) => {
 
 const deleteEmail =  async (req:Request, res:Response, next:NextFunction) => {
     try{
-        const {email} = req.body;
-        const deletedEmail = await emailService.deleteEmail(email)
+        const {id} = req.body;
+        const deletedEmail = await emailService.deleteEmail(id);
         res.status(200).send({data:deletedEmail})
     }catch(err){
         res.status(500).send(err);
