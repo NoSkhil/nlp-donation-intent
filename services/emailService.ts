@@ -127,7 +127,6 @@ const updateEmail = async (emailData: Email) => {
 
 const deleteEmail = async (id: string) => {
     try {
-        console.log(id);
         const deleted = await client.query("DELETE FROM Emails WHERE id=$1", [id]);
         return deleted;
     } catch (err) {
