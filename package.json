@@ -11,8 +11,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@types/mailparser": "^3.4.4",
-    "@types/pg": "^8.11.6",
     "compromise": "^14.13.0",
     "compromise-dates": "^3.5.0",
     "compromise-numbers": "^1.4.0",
@@ -27,6 +25,8 @@
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
+    "@types/mailparser": "^3.4.4",
+    "@types/pg": "^8.11.6",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.21",
     "@types/imap": "^0.8.40",
