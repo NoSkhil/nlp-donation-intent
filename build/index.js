@@ -22,11 +22,15 @@ const imap_1 = __importDefault(require("imap"));
 const mailparser_1 = require("mailparser");
 const emailService_1 = __importDefault(require("./services/emailService"));
 const util_1 = __importDefault(require("util"));
+const path_1 = __importDefault(require("path"));
 const inspect = util_1.default.inspect;
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
-app.get('/', (req, res) => res.status(200).send({ data: "12 server." }));
+app.use(express_1.default.static(path_1.default.join(__dirname, 'client')));
+app.get('/', (req, res) => {
+    res.sendFile(path_1.default.join(__dirname, 'client', 'index.html'));
+});
 app.use('/api/email', emailRoutes_1.default);
 var imap = new imap_1.default({
     user: 'akhilnekkanti98@gmail.com',

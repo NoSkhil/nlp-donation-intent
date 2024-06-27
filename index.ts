@@ -8,6 +8,7 @@ import Imap from 'imap';
 import { simpleParser } from 'mailparser';
 import emailService from "./services/emailService";
 import util from 'util';
+import path from "path";
 const inspect = util.inspect;
 
 const app = express();
@@ -15,7 +16,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (req: Request, res: Response) => res.status(200).send({ data: "12 server." }));
+app.use(express.static(path.join(__dirname, 'client')));
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'index.html'));
+});
+
 app.use('/api/email', emailRoutes);
 
 var imap = new Imap({
