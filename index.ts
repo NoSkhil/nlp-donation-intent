@@ -1,4 +1,3 @@
-//@ts-nocheck
 import express, { Request, Response } from 'express';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -21,19 +20,19 @@ app.use('/api/email', emailRoutes);
 
 var imap = new Imap({
   user: 'akhilnekkanti98@gmail.com',
-  password: process.env.GMAIL_PASSWORD,
+  password: process.env.GMAIL_PASSWORD as string,
   host: 'imap.gmail.com',
   port: 993,
   tls: true,
   tlsOptions: {
     rejectUnauthorized: false, // For testing, you can disable certificate rejection
   },
-  connectTimeout: 100000, // 60 seconds 
+  connTimeout: 100000, // 60 seconds 
   authTimeout: 30000,
   debug: console.log,
 });
 
-function openInbox(cb) {
+function openInbox(cb:any) {
   imap.openBox('INBOX', true, cb);
 }
 
@@ -48,7 +47,7 @@ app.listen(8000, async () => {
   });
 
   imap.once('ready', function () {
-    openInbox(function (err, box) {
+    openInbox(function (err:any, box:any) {
       if (err) throw err;
       imap.on('mail', function () {
         imap.search(['UNSEEN'], async (err, results) => {
@@ -71,7 +70,8 @@ app.listen(8000, async () => {
                     fromEmail: '',
                     senderName: '',
                     senderEmail: '',
-                    bodyText: ''
+                    bodyText: '',
+                    subject: ''
                   };
 
                   try {
@@ -109,7 +109,7 @@ app.listen(8000, async () => {
               });
             });
 
-            f.once('error', function (err) {
+            f.once('error', function (err:any) {
               console.log('Fetch error: ' + err);
             });
 
@@ -123,7 +123,7 @@ app.listen(8000, async () => {
     });
   });
 
-  imap.once('error', function (err) {
+  imap.once('error', function (err:any) {
     console.log(err);
   });
 
