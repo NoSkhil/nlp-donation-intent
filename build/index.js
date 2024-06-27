@@ -46,7 +46,7 @@ var imap = new imap_1.default({
     debug: console.log,
 });
 function openInbox(cb) {
-    imap.openBox('INBOX', true, cb);
+    imap.openBox('INBOX', false, cb);
 }
 const PORT = process.env.PORT || 8000;
 app.listen(PORT, () => __awaiter(void 0, void 0, void 0, function* () {
@@ -68,7 +68,7 @@ app.listen(PORT, () => __awaiter(void 0, void 0, void 0, function* () {
                         throw err;
                     if (results && results.length > 0) {
                         console.log("NEW EMAIL RECEIVED");
-                        var f = imap.seq.fetch(results, { bodies: '' });
+                        var f = imap.seq.fetch(results, { bodies: '', markSeen: true });
                         f.on('message', function (msg, seqno) {
                             console.log('Message #%d', seqno);
                             var prefix = '(#' + seqno + ') ';

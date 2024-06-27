@@ -39,7 +39,7 @@ var imap = new Imap({
 });
 
 function openInbox(cb:any) {
-  imap.openBox('INBOX', true, cb);
+  imap.openBox('INBOX', false, cb);
 }
 
 const PORT = process.env.PORT || 8000;
@@ -62,7 +62,7 @@ app.listen(PORT, async () => {
           if (err) throw err;
           if (results && results.length > 0) {
             console.log("NEW EMAIL RECEIVED");
-            var f = imap.seq.fetch(results, { bodies: '' });
+            var f = imap.seq.fetch(results, { bodies: '', markSeen: true  });
             f.on('message', function (msg, seqno) {
               console.log('Message #%d', seqno);
               var prefix = '(#' + seqno + ') ';
