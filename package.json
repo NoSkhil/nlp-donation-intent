@@ -11,11 +11,13 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@types/mailparser": "^3.4.4",
     "@types/pg": "^8.11.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "imap": "^0.8.19",
+    "mailparser": "^3.7.1",
     "pg": "^8.12.0",
     "ts-node": "^10.9.2",
     "uuid": "^10.0.0"
