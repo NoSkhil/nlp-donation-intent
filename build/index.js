@@ -97,7 +97,6 @@ app.listen(PORT, () => __awaiter(void 0, void 0, void 0, function* () {
                                             if (emailData.senderEmail) {
                                                 emailData.fromEmail = emailData.senderEmail.split('@')[0];
                                             }
-                                            console.log('Email Data:', emailData);
                                             //NLP ANALYSIS TO EXTRACT RELEVANT DATA FROM THE EMAIL
                                             const parsedData = yield emailService_1.default.parseRawEmail(emailData);
                                             console.log("PARSED EMAIL DATA: \n");

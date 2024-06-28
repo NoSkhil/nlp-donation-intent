@@ -15,9 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const db_1 = __importDefault(require("../db"));
 const compromise_1 = __importDefault(require("compromise"));
 const compromise_dates_1 = __importDefault(require("compromise-dates"));
-const compromise_numbers_1 = __importDefault(require("compromise-numbers"));
 compromise_1.default.plugin(compromise_dates_1.default);
-compromise_1.default.plugin(compromise_numbers_1.default);
 const getAllData = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         return yield db_1.default.query("SELECT * FROM Emails");
@@ -51,20 +49,23 @@ const insertEmail = (emailData) => __awaiter(void 0, void 0, void 0, function* (
 });
 const parseRawEmail = (emailData) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { fromEmail, senderName, senderEmail, bodyText } = emailData;
+        const { bodyText } = emailData;
+        const formattedText = bodyText.replace(/,/g, '').replace(/\n/g, ' \n ');
+        const formattedTextForDates = bodyText.replace(/,/g, ' ').replace(/\n/g, ' \n ');
+        console.log("TEXT", formattedText);
         // Use compromise to parse the text
-        const doc = (0, compromise_1.default)(bodyText);
-        // Extract names
-        const names = doc.people().out('array');
-        // Remove special characters
-        const namesFormatted = doc.people().out('array').map((name) => name.replace(/[,-]/g, '').trim());
+        const doc = (0, compromise_1.default)(formattedText);
+        const rawDoc = (0, compromise_1.default)(bodyText);
+        const docForDates = (0, compromise_1.default)(formattedTextForDates);
+        // Extract names and remove special characters
+        const namesFormatted = doc.people().out('array').map((name) => name.replace(/[,-:]/g, '').trim());
         // Remove duplicate names
         const uniqueNames = [...new Set(namesFormatted)];
         // Extract contact numbers
-        const contactnumbers = doc.phoneNumbers().json().map((phone) => parseInt(phone.text.replace(/\D/g, ''), 10));
+        const contactnumbers = rawDoc.phoneNumbers().json().map((phone) => parseInt(phone.text.replace(/\D/g, ''), 10));
         // Extract dates
         //@ts-ignore
-        const dates = doc.dates().json().map(date => new Date(date.date));
+        const dates = docForDates.dates().json().map(date => new Date(date.dates.start));
         // Extract amounts
         const amounts = doc.money().json().map((money) => money.text);
         // Extract emails using compromise
