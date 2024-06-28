@@ -94,7 +94,6 @@ app.listen(PORT, async () => {
                       emailData.fromEmail = emailData.senderEmail.split('@')[0];
                     }
 
-                    console.log('Email Data:', emailData);
                     //NLP ANALYSIS TO EXTRACT RELEVANT DATA FROM THE EMAIL
                    const parsedData = await emailService.parseRawEmail(emailData);
                    console.log("PARSED EMAIL DATA: \n");

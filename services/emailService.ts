@@ -2,10 +2,8 @@ import client from '../db';
 import { v4 as uuidv4 } from 'uuid';
 import { Email, CreateEmailDTO, RawEmailData } from "../interfaces/emailDTO";
 import nlp from 'compromise';
-import datePlugin from 'compromise-dates';
-import numbersPlugin from 'compromise-numbers';
-nlp.plugin(datePlugin);
-nlp.plugin(numbersPlugin);
+import nlpDates from 'compromise-dates';
+nlp.plugin(nlpDates);
 
 const getAllData = async () => {
     try {
@@ -41,26 +39,28 @@ const insertEmail = async (emailData: CreateEmailDTO) => {
 
 const parseRawEmail = async (emailData: RawEmailData): Promise<CreateEmailDTO> => {
     try {
-        const { fromEmail, senderName, senderEmail, bodyText } = emailData;
+        const { bodyText } = emailData;
+
+        const formattedText = bodyText.replace(/,/g, '').replace(/\n/g, ' \n ');
+        const formattedTextForDates = bodyText.replace(/,/g, ' ').replace(/\n/g, ' \n ');
+        console.log("TEXT",formattedText);
 
         // Use compromise to parse the text
-        const doc = nlp(bodyText);
+        const doc = nlp(formattedText);
+        const rawDoc = nlp(bodyText);
+        const docForDates = nlp(formattedTextForDates);
 
-        // Extract names
-        const names = doc.people().out('array');
-
-        // Remove special characters
-        const namesFormatted: string[] = doc.people().out('array').map((name:any) => name.replace(/[,-]/g, '').trim());
+        // Extract names and remove special characters
+        const namesFormatted: string[] = doc.people().out('array').map((name:any) => name.replace(/[,-:]/g, '').trim());
 
         // Remove duplicate names
         const uniqueNames: string[] = [...new Set(namesFormatted)];
 
         // Extract contact numbers
-        const contactnumbers = doc.phoneNumbers().json().map((phone:any) => parseInt(phone.text.replace(/\D/g, ''), 10));
-
+        const contactnumbers = rawDoc.phoneNumbers().json().map((phone:any) => parseInt(phone.text.replace(/\D/g, ''), 10));
         // Extract dates
         //@ts-ignore
-        const dates = doc.dates().json().map(date => new Date(date.date));
+        const dates = docForDates.dates().json().map(date => new Date(date.dates.start));
 
         // Extract amounts
         const amounts = doc.money().json().map((money:any) => money.text);
